@@ -50,7 +50,7 @@ MarkupSafe==2.1.2
 matplotlib==3.7.1
 matplotlib-inline==0.1.6
 mir_eval==0.8.2
-moviepy==2.2.1
+moviepy==1.0.3
 mpmath==1.3.0
 msaf==0.1.80
 msgpack==1.1.2
