@@ -35,10 +35,17 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # --- 資料庫模型 ---
+# --- 資料庫模型 (Models) ---
+
+# 1. 使用者表
 class User(UserMixin, db.Model):
+    # ★★★ 關鍵修改：指定獨一無二的資料表名稱 ★★★
+    __tablename__ = 'rhythm_users' 
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    # 注意：這裡的 relationship 不需要改，它是在 Python 層面的關聯
     workouts = db.relationship('Workout', backref='author', lazy=True)
 
     def set_password(self, password):
@@ -47,9 +54,15 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# 2. 運動紀錄表
 class Workout(db.Model):
+    # ★★★ 關鍵修改：指定獨一無二的資料表名稱 ★★★
+    __tablename__ = 'rhythm_workouts'
+    
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # 注意：ForeignKey 必須指向 '資料表名稱.id'，所以這裡要改成新的表名
+    user_id = db.Column(db.Integer, db.ForeignKey('rhythm_users.id'), nullable=False)
+    
     song_name = db.Column(db.String(200), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, default=5)

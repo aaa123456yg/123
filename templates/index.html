@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmFlow - 首頁上傳區</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; }
+    header { background-color: #222; color: white; padding: 16px 24px; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s; }
+    nav a.active, nav a:hover { background-color: #4CAF50; }
+    main { padding: 24px; display: flex; gap: 40px; box-sizing: border-box; height: calc(100vh - 64px); }
+    .upload-area, .intensity-area { flex: 1; background: white; border-radius: 8px; padding: 24px; box-shadow: 0 0 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; }
+    .upload-area h2, .intensity-area h2 { margin-top: 0; margin-bottom: 24px; font-weight: normal; }
+    .upload-area button { padding: 12px 24px; font-size: 16px; cursor: pointer; border: none; background-color: #0078D7; color: white; border-radius: 6px; transition: background-color 0.3s; }
+    .upload-area button:hover { background-color: #005A9E; }
+    .upload-area input[type="file"] { display: none; }
+    .upload-filename { margin-top: 16px; font-style: italic; color: #666; max-width: 100%; word-break: break-word; }
+    .btn-group { display: flex; gap: 16px; margin-bottom: 20px; }
+    .btn-group button { padding: 12px 24px; font-size: 16px; cursor: pointer; border: 2px solid #0078D7; background-color: white; border-radius: 6px; color: #0078D7; transition: background-color 0.3s, color 0.3s; }
+    .btn-group button.selected, .btn-group button:hover { background-color: #0078D7; color: white; }
+    .to-analysis-btn-container { margin-top: 24px; width: 100%; display: flex; justify-content: center; }
+    .to-analysis-btn-container button { padding: 14px 28px; font-size: 18px; border: none; background-color: #4CAF50; color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+    .to-analysis-btn-container button:hover { background-color: #398439; }
+
+    /* 新增：動作選單樣式 */
+    #actions-container {
+        flex-grow: 1; 
+        width: 100%;
+        border: 2px dashed #ccc; 
+        border-radius: 6px;
+        padding: 10px;
+        overflow-y: auto;
+        max-height: 400px;
+        background: #fafafa;
+    }
+    .action-item {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-item input { margin-right: 10px; transform: scale(1.2); }
+    .action-item img { width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px; }
+    .action-item strong { font-size: 14px; }
+    .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 5px; color: #555; background: #e0e0e0; padding: 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="active">首頁上傳區</a>
+      <a href="#">音樂分析頁</a>
+      <a href="#">運動執行頁</a>
+      <a href="/results">運動成果頁</a>
+      <a href="/personal">個人數據頁</a>
+      
+      {% if username %}
+      <span style="color:#aaa; margin-left:auto;">Hi, {{ username }}</span>
+      <a href="/logout" style="background:#d9534f; margin-left:10px;">登出</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    <form action="/upload_analyze" method="POST" enctype="multipart/form-data" style="display:flex; width:100%; gap:40px;">
+        
+        <section class="upload-area">
+          <h2>音樂上傳區</h2>
+          <button type="button" id="upload-btn">上傳音樂</button>
+          <input type="file" id="file-input" name="music_file" accept="audio/*" required />
+          <div class="upload-filename" id="upload-filename">尚未選取檔案</div>
+          
+          <div style="margin-top: 30px; width: 80%;">
+             <label for="duration">設定運動時長 (分鐘):</label>
+             <input type="number" name="duration" id="duration" value="5" min="1" max="60" style="padding: 5px; width: 60px; font-size: 16px;">
+          </div>
+        </section>
+
+        <section class="intensity-area">
+          <h2>選擇運動強度</h2>
+          <div class="btn-group" id="intensity-buttons">
+            <button type="button" data-value="low" class="selected">初階</button>
+            <button type="button" data-value="medium">中階</button>
+            <button type="button" data-value="high">高階</button>
+          </div>
+          <input type="hidden" name="difficulty" id="difficulty-input" value="low">
+          
+          <div id="actions-container">
+            <p style="text-align:center; color:#999; margin-top:50px;">正在載入動作...</p>
+          </div>
+          
+          <div class="to-analysis-btn-container">
+            <button type="submit" id="to-analysis-btn">前往音樂分析頁</button>
+          </div>
+        </section>
+
+    </form>
+  </main>
+
+  <script>
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('upload-filename');
+    const intensityButtons = document.querySelectorAll('#intensity-buttons button');
+    const difficultyInput = document.getElementById('difficulty-input');
+    const actionsContainer = document.getElementById('actions-container');
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = `已選擇檔案: ${fileInput.files[0].name}`;
+      }
+    });
+
+    // 載入動作的函式
+    async function loadActions(level) {
+        actionsContainer.innerHTML = '<p style="text-align:center; color:#999;">載入中...</p>';
+        const sections = ["warmup", "core", "cooldown"];
+        const sectionNames = {"warmup": "熱身", "core": "主運動", "cooldown": "緩和"};
+        
+        let htmlContent = "";
+
+        for (let section of sections) {
+            try {
+                const res = await fetch(`/get_actions?section=${section}&level=${level}`);
+                const actions = await res.json();
+                
+                htmlContent += `<div class="section-title">${sectionNames[section]} (${actions.length})</div>`;
+                
+                actions.forEach(a => {
+                    // 預設全選
+                    htmlContent += `
+                        <div class="action-item">
+                            <input type="checkbox" name="actions" value="${section}|${a.name}" checked>
+                            <img src="${a.gif_url || ''}" alt="icon" onerror="this.style.display='none'">
+                            <strong>${a.name}</strong>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("載入失敗", e);
+            }
+        }
+        actionsContainer.innerHTML = htmlContent || '<p>無動作資料</p>';
+    }
+
+    intensityButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        intensityButtons.forEach((b) => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const level = btn.dataset.value;
+        difficultyInput.value = level;
+        // 切換難度時重新載入動作
+        loadActions(level);
+      });
+    });
+
+    // 頁面載入時先載入預設難度(low)的動作
+    window.onload = () => loadActions('low');
+  </script>
+</body>
+</html>
