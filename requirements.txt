@@ -88,7 +88,6 @@ pyserial==3.5
 python-dateutil==2.8.2
 python-dotenv==1.2.1
 pytz==2023.3
-pywin32-ctypes==0.2.3
 PyYAML==6.0.2
 pyzmq==25.0.2
 referencing==0.37.0
