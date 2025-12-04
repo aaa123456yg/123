@@ -1,0 +1,171 @@
+{
+  "warmup": {
+    "low": [
+      {
+        "name": "原地踏步",
+        "gif_url": "https://s.yimg.com/ny/api/res/1.2/fsBYWcSvJl3XwfO_j.0Ytg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTcwNTtoPTYxNztjZj13ZWJw/https://media.zenfs.com/en/cava_tw_423/7d243a5a12db73dc78bc40285b334e8c",
+        "audio_text": "輕鬆地原地踏步，雙臂自然擺動。這是一個很好的開始，讓血液流動起來，為接下來的運動做準備。"
+      },
+      {
+        "name": "腳踝環繞",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190325155618_158.gif",
+        "audio_text": "單腳站立，可以輕扶牆壁保持平衡。抬起另一隻腳，順時針轉動腳踝10次，然後逆時針10次。完成後換腳。"
+      },
+      {
+        "name": "手腕環繞",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190325155618_128.gif",
+        "audio_text": "雙腳原地站穩，雙手往前抬起，以手腕為中心開始慢慢向內環繞，約做8-12下後再向外環繞。"
+      }
+    ],
+    "medium": [
+      {
+        "name": "頸部環繞",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190325155618_165.gif",
+        "audio_text": "以頸部為中心緩慢的繞圈，每8拍換一個方向，左右各約2-3次。"
+      },
+      {
+        "name": "高抬腿",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190325155554_139.gif",
+        "audio_text": "原地站立，輪流將膝蓋抬高至臀部水平。可以稍微加快速度，讓心率慢慢提升。保持背部挺直。"
+      },
+      {
+        "name": "後踢腿跑",
+        "gif_url": "https://www.jianshen8.com/uploads/allimg/160510/4_160510144904_5.gif",
+        "audio_text": "原地小跑，同時將腳跟盡量往臀部方向踢。這個動作可以有效活動大腿後側肌群。"
+      },
+      {
+        "name": "前後擺腿",
+        "gif_url": "http://5b0988e595225.cdn.sohucs.com/images/20180626/d41efdd72d314368baafd94ecabd4cc4.gif",
+        "audio_text": "側身站立，單手扶牆。將靠近外側的腿像鐘擺一樣前後擺動，逐漸加大擺動幅度。每邊擺動15次後換邊。"
+      }
+    ],
+    "high": [
+      {
+        "name": "開合跳",
+        "gif_url": "https://blog.worldgymtaiwan.com/hs-fs/hubfs/%E9%96%8B%E5%90%88%E8%B7%B3-1.gif?width=1400&height=934&name=%E9%96%8B%E5%90%88%E8%B7%B3-1.gif",
+        "audio_text": "雙腳併攏站立，向上跳躍時雙腳打開、雙手舉高過頭。落地時回到起始位置。保持輕快的節奏。"
+      },
+      {
+        "name": "原地快速跑",
+        "gif_url": "https://blog.worldgymtaiwan.com/hs-fs/hubfs/%E6%96%87%E7%AB%A0%E5%B0%88%E7%94%A8%E5%9C%96%E7%89%87/%E8%B7%91%E8%B7%91%E5%81%9C.gif?width=1400&name=%E8%B7%91%E8%B7%91%E5%81%9C.gif",
+        "audio_text": "模擬跑步動作，盡可能快地原地交替抬起雙腿，手臂快速擺動。讓心率達到高峰。"
+      },
+      {
+        "name": "髖關節環繞",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190325155618_960.gif",
+        "audio_text": "雙腳打開比肩寬，雙手叉腰，以臀部為中心開始慢慢環繞，每8拍換一個方向，左右各約2-3次。"
+      }
+    ]
+  },
+  "core": {
+    "low": [
+      {
+        "name": "手臂訓練",
+        "gif_url": "https://i.marieclaire.com.tw/assets/mc/202507/686BC756071D51751893846.gif",
+        "audio_text": "吸氣時，妳的雙手手臂向上伸，肚子朝內；呼氣時，你的手肘彎曲，手部動作重複，1組30秒，做3-4組。"
+      },
+      {
+        "name": "側腹伸展",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%8A%E5%8D%8811-49-35-66f4da36711dc.gif?crop=1xw:1xh;center,top",
+        "audio_text": "右手伸直，左手插在腰間，用側腹的力量向地面伸展，一組30秒後，換邊再一組。"
+      },
+      {
+        "name": "側腹踢腿",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%8A%E5%8D%8811-59-16-66f4dcaf39bc6.gif?crop=1xw:1xh;center,top",
+        "audio_text": "右手向上伸直，左手插在腰間，將右腳向側踢高，右手軸順勢下彎，一組30秒後，換邊再一組。"
+      }
+    ],
+    "medium": [
+      {
+        "name": "側腹高抬腳",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%8A%E5%8D%8811-20-26-66f4d4588d47b.gif?crop=1xw:1xh;center,top",
+        "audio_text": "將右手輕貼於耳側，左手叉腰，右腳側面抬高碰到右手軸後，接著左腳垂直上抬碰觸右手軸，一組30秒後，換邊再一組。"
+      },
+      {
+        "name": "弓箭步轉體",
+        "gif_url": "https://picx.zhimg.com/v2-f3c1f17b0ff8feeb66affd76e4ed7051_b.webp",
+        "audio_text": "向前跨出一步，呈弓箭步姿勢。保持穩定，將上半身朝前腿的方向轉動。回到原位，換腳重複。"
+      },
+      {
+        "name": "垂直高抬腳",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%AD%E5%8D%8812-15-56-66f4e07e32e40.gif?crop=1xw:1xh;center,top",
+        "audio_text": "將雙手輕貼於耳側，左、右輪流垂直高抬腳至胸口，核心要用力收緊，左、右腳輪流做，堅持一組30秒。"
+      }
+    ],
+    "high": [
+      {
+        "name": "馬步下彎",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%8A%E5%8D%8811-53-01-66f4db373b695.gif?crop=1xw:1xh;center,top",
+        "audio_text": "將雙手輕貼於耳側，雙腿張開蹲馬步，用腹部力量將身體下彎至左右兩側，左、右邊輪流做，堅持一組30秒。"
+      },
+      {
+        "name": "轉腰抬腿",
+        "gif_url": "https://hips.hearstapps.com/hmg-prod/images/%E8%9E%A2%E5%B9%95%E9%8C%84%E5%BD%B1-2024-09-26-%E4%B8%AD%E5%8D%8812-00-23-66f4dcc98310a.gif?crop=1xw:1xh;center,top",
+        "audio_text": "將雙手手掌相疊於胸前，左、右輪流抬腿，並向兩側轉腰，左、右邊輪流做，堅持一組30秒。"
+      },
+      {
+        "name": "深蹲跳",
+        "gif_url": "https://www.sportsplanetmag.com/public/article/atl_20190503122126_633.gif",
+        "audio_text": "雙腳併攏，雙手抱拳放置在胸口。吸氣，往上跳躍，吐氣，下來時雙腳打開，同時將左手碰至地面。再次跳躍，下來時雙腳打開，同時將右手碰至地面。重複45秒後再休息15秒。"
+      }
+    ]
+  },
+  "cooldown": {
+    "low": [
+      {
+        "name": "腿部內側伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010814-8d695161.gif",
+        "audio_text": "雙腿伸直向外打開，身體慢慢向前趴，越低越好，感受腿部後側和大腿內側的拉伸感，維持30秒。注意膝蓋不要彎曲，雙腿盡量向外伸直。"
+      },
+      {
+        "name": "單側伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010816-9577c019.gif",
+        "audio_text": "一腿往內收縮，另一腿向外伸直，雙手試著碰向外的腳尖。一邊20秒，每次2組。膝蓋容易彎曲可以用手輕按住，感受小腿後側的伸展。"
+      },
+      {
+        "name": "站姿小腿伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/03/21/20210321160310-a788acd8.gif",
+        "audio_text": "找一面牆，前弓後箭步站立，後腿伸直，腳跟踩地。身體前傾，感受後方小腿的拉伸。保持30秒後換腳。"
+      }
+    ],
+    "medium": [
+      {
+        "name": "大腿內側伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010818-a632cdec.gif",
+        "audio_text": "兩腳朝內收，兩腳掌心相對碰，雙手握腳掌，膝蓋盡量向下壓，上半身直立伸展20秒。也可以慢慢趴下去，大腿內側的拉伸感會更強烈。"
+      },
+      {
+        "name": "大腿前側伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010820-14813d89.gif",
+        "audio_text": "雙腳一前一後，前面那條腿屈膝，後面的腿伸直腳尖撐地，有點就像做弓箭步，身體向下壓，兩邊各10秒，一邊各2組。"
+      },
+      {
+        "name": "跪姿伸展大腿前側",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010822-59b00651.gif",
+        "audio_text": "雙腳一前一後打開，右腿往前屈膝撐地，左腿則是往後伸直貼地，身體轉向右方微傾向下壓。"
+      },
+      {
+        "name": "加強跪姿伸展大腿前側",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010823-614cdc00.gif",
+        "audio_text": "接著用右手拉住左腳腳背，拉伸展會更強烈。兩邊各堅持10秒，一邊各3組。"
+      }
+    ],
+    "high": [
+      {
+        "name": "小腿肌伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010825-c3d8e842.gif",
+        "audio_text": "後腿屈膝跪地，前腳伸直腳後跟點地，身體向下壓，每條腿個伸展20秒，一邊各2組。這個動作柔韌性好的話，身體可以貼到腿喔。"
+      },
+      {
+        "name": "天鵝式伸展",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010827-b9d448d1.gif",
+        "audio_text": "前面那條腿彎曲撐地，右腿盡量伸直貼地，上半身保持直立狀態，伸展15秒。也可以慢慢向前趴下去，左右兩腿各2組。"
+      },
+      {
+        "name": "仰臥拉伸大腿前側",
+        "gif_url": "https://cc.tvbs.com.tw/img/program/upload/2021/01/29/20210129010829-b86bd3fd.gif",
+        "audio_text": "右腳彎曲放在臀部外側，左腳伸直向前，身體慢慢往後躺下去，整個身體仰臥在墊子上，可以感受到右側大腿伸展，約躺30秒後可以換另一側。也可以兩條腿併攏，再慢慢躺下去，雙手自然垂放在頭上，感受大腿前側的伸展，也可以同步鍛鍊腰部。"
+      }
+    ]
+  }
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmFlow - 分析結果預覽</title>
+  <style>
+    /* --- 新版 UI 基礎樣式 --- */
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+    header { background-color: #222; color: white; padding: 16px 24px; }
+    nav { display: flex; gap: 24px; }
+    nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s; }
+    nav a.active, nav a:hover { background-color: #4CAF50; }
+    main { flex-grow: 1; padding: 24px 40px; box-sizing: border-box; display: flex; flex-direction: column; max-width: 1000px; margin: 0 auto; width: 100%; }
+    
+    h1, h3 { margin-top: 0; }
+    
+    /* --- 舊版 圖表樣式移植 --- */
+    #songChartContainer { position: relative; margin-bottom: 40px; height: 70px; border: 1px solid #ddd; background: white; border-radius: 8px; overflow: hidden; }
+    #songChart { display: flex; height: 50px; width: 100%; position: relative; z-index: 1; align-items: center; }
+    .song-name { text-align: center; font-size: 12px; color: black; border-left: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1); white-space: nowrap; overflow: hidden; line-height: 50px; }
+    .section-bg { position: absolute; top: 0; height: 50px; z-index: 0; opacity: 0.3; }
+    #timeAxis { position: absolute; bottom: 0; left: 0; right: 0; height: 20px; background: #eee; }
+    #timeAxis span { position: absolute; font-size: 10px; bottom: 2px; transform: translateX(-50%); color: #666; }
+
+    .section-container { margin-top: 20px; padding: 15px; border-radius: 8px; background-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .section-title { margin-bottom: 10px; font-weight: bold; font-size: 1.1em; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+    .section-drag { display: flex; flex-wrap: wrap; gap: 10px; min-height: 40px; padding: 5px; }
+
+    .action-card { padding: 8px 12px; border-radius: 6px; color: white; font-weight: bold; text-align: center; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .warmup-card { background-color: #FF7F50; }
+    .core-card { background-color: #20B2AA; }
+    .cooldown-card { background-color: #9370DB; }
+    .rest-card { background-color: #e0e0e0; color: #555; font-style: italic; }
+
+    .btn-container { margin-top: 40px; text-align: center; padding-bottom: 40px; }
+    button#start-btn { padding: 16px 40px; font-size: 22px; background-color: #0078D7; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,120,215,0.3); }
+    button#start-btn:hover { background-color: #005A9E; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">首頁上傳區</a>
+      <a href="#" class="active">音樂分析頁</a>
+      <a href="#">運動執行頁</a>
+      <a href="/results">運動成果頁</a>
+      <a href="/personal">個人數據頁</a>
+    </nav>
+  </header>
+  <main>
+    <h1>分析結果與運動腳本</h1>
+    
+    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <p><strong>選擇難度：</strong><span id="difficulty"></span></p>
+        <p><strong>目標時長：</strong><span id="duration"></span> 分鐘</p>
+        <p><strong>上傳音樂：</strong><span id="musicName"></span></p>
+    </div>
+
+    <h3>歌曲時間分布</h3>
+    <div id="songChartContainer">
+      <div id="songChart"></div>
+      <div id="timeAxis"></div>
+    </div>
+
+    <h3>運動腳本 (自動生成)</h3>
+    <div id="sectionsContainer"></div>
+
+    <div class="btn-container">
+        <button id="start-btn">開始運動</button>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 從 localStorage 讀取資料
+      const result = JSON.parse(localStorage.getItem("analyze_result") || "{}");
+      
+      // 獲取 URL 中的 session_id
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+
+      if (!result || !result.music_list) {
+        alert("無法讀取分析資料，請重新上傳");
+        window.location.href = "/";
+        return;
+      }
+
+      const { difficulty, duration, music_list, actions } = result;
+
+      // 填充基本資訊
+      document.getElementById("difficulty").textContent = difficulty || "Low";
+      document.getElementById("duration").textContent = duration || 5;
+      document.getElementById("musicName").textContent = music_list[0].name;
+
+      // --- 繪製圖表邏輯 (移植自舊版) ---
+      const workoutDuration = parseFloat(duration)*60 || 300;
+      const sectionOrder = ["warmup","core","cooldown"];
+      const sectionDurations = { warmup: workoutDuration*0.2, core: workoutDuration*0.6, cooldown: workoutDuration*0.2 };
+      const sectionColors = { warmup:"#FFA07A", core:"#20B2AA", cooldown:"#9370DB" };
+      const cardClasses = { warmup:"warmup-card", core:"core-card", cooldown:"cooldown-card" };
+
+      // 1. 背景色塊
+      const container = document.getElementById("songChartContainer");
+      let cursor = 0;
+      sectionOrder.forEach(sec => {
+        const div = document.createElement("div");
+        div.className="section-bg";
+        div.style.backgroundColor=sectionColors[sec];
+        div.style.left=(cursor/workoutDuration*100)+'%';
+        div.style.width=(sectionDurations[sec]/workoutDuration*100)+'%';
+        container.appendChild(div);
+        cursor+=sectionDurations[sec];
+      });
+
+      // 2. 歌曲名稱條
+      const songChart = document.getElementById("songChart");
+      let currentTime = 0, idx=0;
+      // 簡單模擬循環
+      while(currentTime < workoutDuration){
+        const song = music_list[idx % music_list.length];
+        let start = currentTime;
+        let end = start + song.duration;
+        if(end > workoutDuration) end = workoutDuration;
+        
+        const div = document.createElement("div");
+        div.className = "song-name";
+        div.style.position = "absolute";
+        div.style.left = (start/workoutDuration*100)+'%';
+        div.style.width = ((end-start)/workoutDuration*100)+'%';
+        div.textContent = song.name;
+        songChart.appendChild(div);
+        
+        currentTime = end;
+        idx++;
+      }
+
+      // 3. 時間軸刻度
+      const timeAxis = document.getElementById("timeAxis");
+      const interval = Math.max(60, Math.floor(workoutDuration/10));
+      for(let i=0; i<=workoutDuration; i+=interval){
+        const mark = document.createElement("span");
+        mark.style.left = ((i/workoutDuration)*100)+'%';
+        mark.textContent = formatTime(i);
+        timeAxis.appendChild(mark);
+      }
+
+      // 4. 動作腳本卡片
+      const sectionsContainer = document.getElementById("sectionsContainer");
+      const actionTime = 20, restTime = 10;
+
+      sectionOrder.forEach(sec => {
+        const secDiv = document.createElement("div");
+        secDiv.className = "section-container";
+        
+        const secTitle = document.createElement("div");
+        secTitle.className = "section-title";
+        secTitle.textContent = `${sec.toUpperCase()} (${Math.floor(sectionDurations[sec]/60)} 分鐘)`;
+        secDiv.appendChild(secTitle);
+
+        const sectionDrag = document.createElement("div");
+        sectionDrag.className = "section-drag";
+        secDiv.appendChild(sectionDrag);
+
+        // 過濾出該階段的動作
+        const actionsForSec = (actions||[]).filter(a => a.startsWith(sec+"|")).map(a => a.split("|")[1].trim());
+        
+        // 如果沒有動作 (自動配對模式)，顯示提示
+        if(actionsForSec.length === 0) {
+            sectionDrag.innerHTML = `<span style="color:#999;">(此階段為系統自動隨機配對動作)</span>`;
+        } else {
+            let t = 0;
+            // 模擬循環填滿
+            while(t < sectionDurations[sec]){
+                for(let act of actionsForSec){
+                    if(t + actionTime > sectionDurations[sec]) break;
+                    
+                    const actDiv = document.createElement("div");
+                    actDiv.className = "action-card " + cardClasses[sec];
+                    actDiv.innerHTML = `${act} <span style="font-size:0.8em; opacity:0.8;">${formatTime(t)} - ${formatTime(t+actionTime)}</span>`;
+                    sectionDrag.appendChild(actDiv);
+                    
+                    t += actionTime;
+                    
+                    if(t + restTime <= sectionDurations[sec]){
+                        const restDiv = document.createElement("div");
+                        restDiv.className = "action-card rest-card";
+                        restDiv.textContent = `休息`;
+                        sectionDrag.appendChild(restDiv);
+                        t += restTime;
+                    }
+                }
+                if(t + actionTime > sectionDurations[sec]) break;
+            }
+        }
+        sectionsContainer.appendChild(secDiv);
+      });
+
+      // 按鈕跳轉
+      document.getElementById('start-btn').addEventListener('click', () => {
+        if(sessionId) {
+            window.location.href = `/execution?session_id=${sessionId}`;
+        } else {
+            alert("影片尚未準備好，請稍後");
+        }
+      });
+
+      function formatTime(sec){
+        const m = Math.floor(sec/60);
+        const s = Math.floor(sec%60);
+        return `${m}:${String(s).padStart(2,"0")}`;
+      }
+    });
+  </script>
+</body>
+</html>

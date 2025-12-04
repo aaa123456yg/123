@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>開始運動！</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    /* 簡單的按鈕樣式復原 */
+    .controls {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    button {
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #ee5253;
+    }
+    label {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    input[type=range] {
+        accent-color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>跟著節奏開始運動！</h1></header>
+  <div class="container" style="text-align:center;">
+    
+    <video id="workoutVideo" width="640" style="background:black;">
+      <source src="{{ video_url }}" type="video/mp4">
+      您的瀏覽器不支援 MP4 影片播放。
+    </video>
+    
+    <div class="controls">
+      <button onclick="document.getElementById('workoutVideo').play()">播放</button>
+      <button onclick="document.getElementById('workoutVideo').pause()">暫停</button>
+      <label>音量
+        <input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('workoutVideo').volume = this.value">
+      </label>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/" style="text-decoration:none; color:#333;">返回首頁</a> | 
+        <a href="{{ video_url }}" download="{{ video_filename }}" style="text-decoration:none; color:#333;">下載影片</a>
+    </div>
+
+  </div>
+</body>
+</html>

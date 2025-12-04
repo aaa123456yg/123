@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>分析結果</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; }
+h1, h3, h4 { margin-bottom: 10px; }
+#summary { margin-bottom: 20px; }
+
+#songChartContainer { position: relative; margin-bottom: 40px; height: 70px; border: 1px solid #333; }
+#songChart { display: flex; height: 50px; width: 100%; position: relative; z-index: 1; align-items: center; }
+.song-name { text-align: center; font-size: 12px; color: black; border-left: 1px solid rgba(0,0,0,0.2); border-right: 1px solid rgba(0,0,0,0.2); white-space: nowrap; overflow: hidden; }
+
+.section-bg { position: absolute; top: 0; height: 50px; z-index: 0; opacity: 0.3; }
+
+#timeAxis { position: absolute; bottom: -20px; left: 0; right: 0; height: 20px; }
+#timeAxis span { position: absolute; font-size: 12px; transform: translateX(-50%); }
+
+.section-container { margin-top: 20px; padding: 10px; border-radius: 5px; background-color: #f0f0f0; }
+.section-title { margin-bottom: 5px; font-weight: bold; }
+.section-drag { display: flex; flex-wrap: wrap; gap: 10px; min-height: 40px; border: 1px dashed #333; padding: 5px; }
+
+.action-card { padding: 5px 10px; border-radius: 5px; cursor: grab; color: white; font-weight: bold; text-align: center; user-select: none; }
+.warmup-card { background-color: #FF7F50; }
+.core-card { background-color: #20B2AA; }
+.cooldown-card { background-color: #9370DB; }
+.rest-card { background-color: #ccc; color: #000; font-style: italic; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<header><h1>分析結果與運動腳本</h1></header>
+
+<div class="container">
+<div id="summary">
+<p><strong>選擇難度：</strong><span id="difficulty"></span></p>
+<p><strong>目標時長：</strong><span id="duration"></span> 分鐘</p>
+<p><strong>上傳音樂：</strong></p>
+<ul id="musicList"></ul>
+</div>
+
+<h3>歌曲時間分布</h3>
+<div id="songChartContainer">
+  <div id="songChart"></div>
+  <div id="timeAxis"></div>
+</div>
+
+<h3>運動腳本（拖曳交換，休息固定）</h3>
+<div id="sectionsContainer"></div>
+
+<a href="/compose"><button>前往影片合成</button></a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const result = JSON.parse(localStorage.getItem("analyze_result") || "{}");
+  if (!result || !result.music_list) {
+    document.body.innerHTML = "<h2>無法載入分析結果，請重新分析。</h2>";
+    return;
+  }
+
+  const { difficulty, duration, music_list, actions } = result;
+
+  // 顯示基本資訊
+  document.getElementById("difficulty").textContent = difficulty || "未選擇";
+  document.getElementById("duration").textContent = duration || 0;
+
+  // 音樂列表（去重）
+  const seen = new Set();
+  const musicListUL = document.getElementById("musicList");
+  music_list.forEach(m => {
+    if (!seen.has(m.name)) {
+      const li = document.createElement("li");
+      li.textContent = `${m.name} (${m.duration} 秒)`;
+      musicListUL.appendChild(li);
+      seen.add(m.name);
+    }
+  });
+
+  // 歌曲時間分布
+  const workoutDuration = parseFloat(duration)*60 || 0;
+  const sectionOrder = ["warmup","core","cooldown"];
+  const sectionDurations = { warmup: workoutDuration*0.2, core: workoutDuration*0.6, cooldown: workoutDuration*0.2 };
+  const sectionColors = { warmup:"#FFA07A", core:"#20B2AA", cooldown:"#9370DB" };
+  const cardClasses = { warmup:"warmup-card", core:"core-card", cooldown:"cooldown-card" };
+
+  const container = document.getElementById("songChartContainer");
+  let cursor = 0;
+  sectionOrder.forEach(sec => {
+    const div = document.createElement("div");
+    div.className="section-bg";
+    div.style.backgroundColor=sectionColors[sec];
+    div.style.left=(cursor/workoutDuration*100)+'%';
+    div.style.width=(sectionDurations[sec]/workoutDuration*100)+'%';
+    container.appendChild(div);
+    cursor+=sectionDurations[sec];
+  });
+
+  // 歌曲時間軸
+  const songChart = document.getElementById("songChart");
+  let finalSongs = [];
+  let currentTime = 0, idx=0;
+  while(currentTime<workoutDuration){
+    const song=music_list[idx%music_list.length];
+    let start=currentTime;
+    let end=start+song.duration;
+    if(end>workoutDuration) end=workoutDuration;
+    finalSongs.push({name:song.name,start,end});
+    currentTime=end;
+    idx++;
+  }
+  finalSongs.forEach(s=>{
+    const div=document.createElement("div");
+    div.className="song-name";
+    div.style.position="absolute";
+    div.style.left=(s.start/workoutDuration*100)+'%';
+    div.style.width=((s.end-s.start)/workoutDuration*100)+'%';
+    div.textContent=`${s.name} ${formatTime(s.start)} - ${formatTime(s.end)}`;
+    songChart.appendChild(div);
+  });
+
+  // 時間刻度
+  const timeAxis=document.getElementById("timeAxis");
+  const interval=Math.max(60, Math.floor(workoutDuration/10));
+  for(let i=0;i<=workoutDuration;i+=interval){
+    const mark=document.createElement("span");
+    mark.style.left=((i/workoutDuration)*100)+'%';
+    mark.textContent=formatTime(i);
+    timeAxis.appendChild(mark);
+  }
+
+  // 運動腳本
+  const sectionsContainer=document.getElementById("sectionsContainer");
+  const actionTime=20, restTime=10;
+
+  sectionOrder.forEach(sec=>{
+    const secDiv=document.createElement("div");
+    secDiv.className="section-container";
+    const secTitle=document.createElement("div");
+    secTitle.className="section-title";
+    secTitle.textContent=`${sec.toUpperCase()} (${Math.floor(sectionDurations[sec]/60)} 分鐘)`;
+    secDiv.appendChild(secTitle);
+
+    const sectionDrag=document.createElement("div");
+    sectionDrag.className="section-drag";
+    secDiv.appendChild(sectionDrag);
+
+    const actionsForSec=(actions||[]).filter(a=>a.startsWith(sec+"|")).map(a=>a.split("|")[1].trim());
+    let t=0;
+    while(t<sectionDurations[sec]){
+      for(let act of actionsForSec){
+        if(t+actionTime>sectionDurations[sec]) break;
+        const actDiv=document.createElement("div");
+        actDiv.className="action-card "+cardClasses[sec];
+        actDiv.textContent=act;
+        actDiv.draggable=true;
+        sectionDrag.appendChild(actDiv);
+        t+=actionTime;
+        if(t+restTime<=sectionDurations[sec]){
+          const restDiv=document.createElement("div");
+          restDiv.className="action-card rest-card";
+          restDiv.textContent="休息";
+          restDiv.draggable=false;
+          sectionDrag.appendChild(restDiv);
+          t+=restTime;
+        }
+      }
+      if(t+actionTime>sectionDurations[sec]) break;
+    }
+
+    sectionsContainer.appendChild(secDiv);
+
+    // 拖曳交換邏輯
+    let dragged=null;
+    sectionDrag.addEventListener("dragstart", e=>{
+      if(e.target.classList.contains("rest-card")) return;
+      dragged=e.target;
+    });
+    sectionDrag.addEventListener("dragover", e=>e.preventDefault());
+    sectionDrag.addEventListener("drop", e=>{
+      e.preventDefault();
+      if(!dragged) return;
+      let target=e.target;
+      if(target.classList.contains("rest-card") || !target.classList.contains("action-card")) return;
+      // 交換 dragged 與 target 位置
+      const draggedNext=dragged.nextSibling;
+      const targetNext=target.nextSibling;
+      sectionDrag.insertBefore(dragged,targetNext);
+      sectionDrag.insertBefore(target,draggedNext);
+      updateTimes(sectionDrag);
+      dragged=null;
+    });
+
+    updateTimes(sectionDrag); // 初始化時間
+  });
+
+  function updateTimes(container){
+    let current=0;
+    container.querySelectorAll(".action-card").forEach(card=>{
+      if(card.classList.contains("rest-card")){
+        card.textContent=`休息 ${formatTime(current)} - ${formatTime(current+restTime)}`;
+        current+=restTime;
+      } else{
+        const actName=card.textContent.split(" ")[0];
+        card.textContent=`${actName} ${formatTime(current)} - ${formatTime(current+actionTime)}`;
+        current+=actionTime;
+      }
+    });
+  }
+
+  function formatTime(sec){
+    const m=Math.floor(sec/60);
+    const s=Math.floor(sec%60);
+    return `${m}:${String(s).padStart(2,"0")}`;
+  }
+
+});
+</script>
+</body>
+</html>

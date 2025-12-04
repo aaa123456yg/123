@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmFlow - 運動成果頁</title>
+  <style>
+    /* ... 保留同學樣式 ... */
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; display: flex; flex-direction: column; height: 100vh; }
+    header { background-color: #222; color: white; padding: 16px 24px; }
+    nav { display: flex; gap: 24px; }
+    nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s; }
+    nav a.active, nav a:hover { background-color: #4CAF50; }
+    main { flex-grow: 1; padding: 24px 40px; box-sizing: border-box; display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; }
+    h1 { margin-top: 0; font-weight: bold; margin-bottom: 32px; text-align: center; font-size: 2rem; }
+    .result-section { margin-bottom: 32px; display: flex; flex-direction: column; align-items: center; }
+    .result-label { font-size: 1.2rem; margin-bottom: 16px; font-weight: 600; }
+    .duration-display { font-size: 2rem; font-weight: bold; margin-bottom: 24px; color: #0078D7; }
+    .rating-slider { width: 100%; max-width: 400px; }
+    .rating-value { margin-top: 8px; font-size: 1.2rem; font-weight: 600; color: #555; }
+    .buttons-container { display: flex; justify-content: space-between; margin-top: auto; padding-bottom: 24px; }
+    button { padding: 16px 36px; font-size: 1.25rem; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; color: white; min-width: 140px; }
+    #my-data-btn { background-color: #0078D7; }
+    #my-data-btn:hover { background-color: #005A9E; }
+    #retry-btn { background-color: #4CAF50; }
+    #retry-btn:hover { background-color: #398439; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">首頁上傳區</a>
+      <a href="#">音樂分析頁</a>
+      <a href="#">運動執行頁</a>
+      <a href="/results" class="active">運動成果頁</a>
+      <a href="/personal">個人數據頁</a>
+    </nav>
+  </header>
+  <main>
+    <h1>運動成果</h1>
+
+    <section class="result-section">
+      <div class="result-label">本次運動時長</div>
+      <div id="duration" class="duration-display">00:00</div>
+      <div id="song-name" style="color: #666; margin-top: 5px;"></div>
+    </section>
+
+    <section class="result-section">
+      <div class="result-label">請評分本次運動的滿意度</div>
+      <input type="range" min="0" max="10" step="1" value="5" id="satisfaction-slider" class="rating-slider" />
+      <div id="satisfaction-value" class="rating-value">5 分</div>
+    </section>
+
+    <section class="result-section">
+      <div class="result-label">動作與節奏的契合度</div>
+      <input type="range" min="0" max="10" step="1" value="5" id="rhythm-match-slider" class="rating-slider" />
+      <div id="rhythm-match-value" class="rating-value">5 分</div>
+    </section>
+
+    <div class="buttons-container">
+      <button id="my-data-btn">查看數據</button>
+      <button id="retry-btn">再次運動</button>
+    </div>
+  </main>
+
+  <script>
+    // 1. 讀取暫存資料
+    const lastSession = JSON.parse(localStorage.getItem('last_workout_session') || "null");
+    
+    // 顯示時長
+    const durationDisplay = document.getElementById('duration');
+    const songNameDisplay = document.getElementById('song-name');
+    
+    if (lastSession) {
+        durationDisplay.textContent = formatTime(lastSession.duration);
+        songNameDisplay.textContent = `音樂：${lastSession.songName}`;
+    } else {
+        durationDisplay.textContent = "00:00";
+        songNameDisplay.textContent = "尚無紀錄";
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    // 2. 滑桿邏輯
+    const satisfactionSlider = document.getElementById('satisfaction-slider');
+    const satisfactionValue = document.getElementById('satisfaction-value');
+    satisfactionSlider.addEventListener('input', () => {
+      satisfactionValue.textContent = `${satisfactionSlider.value} 分`;
+    });
+
+    const rhythmMatchSlider = document.getElementById('rhythm-match-slider');
+    const rhythmMatchValue = document.getElementById('rhythm-match-value');
+    rhythmMatchSlider.addEventListener('input', () => {
+      rhythmMatchValue.textContent = `${rhythmMatchSlider.value} 分`;
+    });
+
+    // 修改 saveAndRedirect 函式
+  async function saveAndRedirect(url) {
+      if (lastSession) {
+          const rating = satisfactionSlider.value;
+          const rhythm = rhythmMatchSlider.value; // 雖然我們資料庫只開了一個 rating 欄位，暫時先存一個
+          
+          // ★★★ 改用 API 存入資料庫 ★★★
+          try {
+              await fetch('/api/save_workout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      songName: lastSession.songName,
+                      duration: lastSession.duration,
+                      rating: rating
+                  })
+              });
+          } catch (e) {
+              console.error("存檔失敗", e);
+          }
+          
+          // 清除暫存
+          localStorage.removeItem('last_workout_session');
+      }
+      window.location.href = url;
+  }
+
+    document.getElementById('my-data-btn').addEventListener('click', () => {
+      saveAndRedirect('/personal');
+    });
+
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      saveAndRedirect('/');
+    });
+  </script>
+</body>
+</html>

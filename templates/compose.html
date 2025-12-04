@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>合成影片</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header><h1>合成影片中</h1></header>
+<div class="container">
+    <p id="status">正在產生影片：0%</p>
+    <div style="border:1px solid #333; height:30px; background: #eee;">
+        <div id="progress-bar" style="width:0%; height:30px; background-color:#4CAF50; transition: width 0.3s;"></div>
+    </div>
+</div>
+
+<script>
+async function startCompose() {
+    const result = JSON.parse(localStorage.getItem("analyze_result") || "{}");
+    if (!result || !result.actions || !result.music_list) {
+        document.getElementById("status").textContent = "無法取得資料！";
+        return;
+    }
+
+    const res = await fetch("/compose", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(result)
+    });
+    const data = await res.json();
+    const session_id = data.session_id;
+    const statusEl = document.getElementById("status");
+    const progressEl = document.getElementById("progress-bar");
+
+    const interval = setInterval(async () => {
+        const res = await fetch(`/compose/progress/${session_id}`);
+        const data = await res.json();
+        
+        if (data.progress < 0) {
+             clearInterval(interval);
+             statusEl.textContent = "錯誤：影片產生失敗！請檢查終端機日誌。";
+             progressEl.style.backgroundColor = "red";
+             return;
+        }
+
+        statusEl.textContent = `正在產生影片：${data.progress}%`;
+        progressEl.style.width = `${data.progress}%`;
+
+        if (data.progress >= 100) {
+            clearInterval(interval);
+            statusEl.textContent = "影片產生完成！";
+            setTimeout(() => { window.location.href = `/workout?session_id=${session_id}`; }, 1000);
+        }
+    }, 1000);
+}
+
+startCompose();
+</script>
+</body>
+</html>

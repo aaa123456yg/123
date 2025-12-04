@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmFlow - 運動執行頁</title>
+  <style>
+    /* ... 保留原有 CSS ... */
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; display: flex; flex-direction: column; height: 100vh; }
+    header { background-color: #222; color: white; padding: 16px 24px; }
+    nav { display: flex; gap: 24px; }
+    nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s; }
+    nav a.active, nav a:hover { background-color: #4CAF50; }
+    main { flex-grow: 1; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+    
+    video { width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); background: black; margin-bottom: 20px; }
+    
+    .controls { display: flex; justify-content: center; gap: 20px; margin-bottom: 24px; }
+    button { background-color: #0078D7; border: none; color: white; font-size: 18px; padding: 10px 24px; border-radius: 8px; cursor: pointer; }
+    button:hover { background-color: #005A9E; }
+    button.end-btn { background-color: #d9534f; }
+    button.end-btn:hover { background-color: #b52b27; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">首頁上傳區</a>
+      <a href="#">音樂分析頁</a>
+      <a href="#" class="active">運動執行頁</a>
+      <a href="/results">運動成果頁</a>
+      <a href="/personal">個人數據頁</a>
+    </nav>
+  </header>
+  <main>
+    <h2>跟著影片開始運動！</h2>
+    
+    <video id="workoutVideo" controls autoplay>
+        <source src="{{ video_url }}" type="video/mp4">
+        您的瀏覽器不支援 MP4 播放。
+    </video>
+
+    <div class="controls">
+      <button onclick="document.getElementById('workoutVideo').play()">播放</button>
+      <button onclick="document.getElementById('workoutVideo').pause()">暫停</button>
+      <button class="end-btn" id="finishBtn">結束運動</button>
+    </div>
+  </main>
+
+  <script>
+    const video = document.getElementById('workoutVideo');
+    const finishBtn = document.getElementById('finishBtn');
+
+    finishBtn.addEventListener('click', () => {
+        // 1. 獲取當前運動資訊
+        // 嘗試從 localStorage 讀取歌名 (在 music-analysis.html 存的)
+        let songName = "未知歌曲";
+        try {
+            const analysisData = JSON.parse(localStorage.getItem("analyze_result"));
+            if(analysisData && analysisData.music_list) {
+                songName = analysisData.music_list[0].name;
+            }
+        } catch(e) {}
+
+        // 2. 紀錄本次運動數據 (暫存)
+        const currentSession = {
+            date: new Date().toISOString(), // 紀錄時間
+            duration: Math.floor(video.currentTime), // 實際運動秒數 (或是影片總長 video.duration)
+            songName: songName
+        };
+
+        localStorage.setItem('last_workout_session', JSON.stringify(currentSession));
+
+        // 3. 跳轉
+        window.location.href = '/results';
+    });
+  </script>
+</body>
+</html>

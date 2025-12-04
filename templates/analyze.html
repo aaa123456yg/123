@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>分析中...</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header><h1>分析中，請稍候...</h1></header>
+<div class="container">
+    <p>音樂、節奏分析中...</p>
+    <div class="progress-bar" style="border:1px solid #333; height:30px;">
+        <div class="progress" id="progress" style="width:0%; height:30px; background-color:#4CAF50;"></div>
+    </div>
+</div>
+
+<script>
+const formData = JSON.parse('{{ form_data_json|safe }}');
+let width = 0;
+const progress = document.getElementById("progress");
+
+const interval = setInterval(() => {
+    width += 1;
+    progress.style.width = width + "%";
+
+    if (width >= 100) {
+        clearInterval(interval);
+
+        // 分析完成 → 呼叫後端分析結果
+        fetch("/analyze/result", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(result => {
+            localStorage.setItem("analyze_result", JSON.stringify(result));
+            window.location.href = "/results";
+        });
+    }
+}, 50);
+</script>
+</body>
+</html>

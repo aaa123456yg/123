@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RhythmFlow - 音樂分析頁</title>
+  <style>
+    /* 保留原樣式 */
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; color: #333; display: flex; flex-direction: column; height: 100vh; }
+    header { background-color: #222; color: white; padding: 16px 24px; }
+    nav { display: flex; gap: 24px; }
+    nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s; }
+    nav a.active, nav a:hover { background-color: #4CAF50; }
+    main { flex-grow: 1; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .progress-bar-container { width: 100%; height: 20px; background-color: #eee; border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+    .progress-bar { height: 100%; width: 0%; background-color: #4CAF50; transition: width 0.3s ease; }
+    .status-text { font-size: 18px; font-weight: 600; margin-bottom: 24px; min-height: 24px; color: #555; }
+    .charts-placeholder { flex-grow: 1; border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: #999; font-size: 20px; text-align: center; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">首頁上傳區</a>
+      <a href="#" class="active">音樂分析頁</a>
+      <a href="#">運動執行頁</a>
+      <a href="/results">運動成果頁</a>
+      <a href="/personal">個人數據頁</a>
+    </nav>
+  </header>
+  <main>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="status-text" id="status-text">正在分析音樂與合成影片... (請稍候)</div>
+    
+    <div class="charts-placeholder">
+        <div>
+            <h3>AI 智能分析中</h3>
+            <p>BPM 偵測... [OK]</p>
+            <p>動作配對... [OK]</p>
+            <p>影片渲染中...</p>
+        </div>
+    </div>
+  </main>
+
+  <script>
+    const formData = JSON.parse('{{ form_data_json|safe }}');
+    const progressBar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('status-text');
+
+    // ★★★ 關鍵：一進來就把資料存到 LocalStorage，給下一頁用 ★★★
+    localStorage.setItem("analyze_result", JSON.stringify(formData));
+
+    async function startProcess() {
+        try {
+            const res = await fetch("/compose", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+            const sessionId = data.session_id;
+
+            const interval = setInterval(async () => {
+                const res = await fetch(`/compose/progress/${sessionId}`);
+                const pData = await res.json();
+                
+                if (pData.progress < 0) {
+                    clearInterval(interval);
+                    statusText.textContent = "錯誤：影片產生失敗！";
+                    progressBar.style.backgroundColor = "red";
+                    return;
+                }
+
+                progressBar.style.width = `${pData.progress}%`;
+                statusText.textContent = `正在生成影片：${pData.progress}%`;
+
+                if (pData.progress >= 100) {
+                    clearInterval(interval);
+                    statusText.textContent = "分析完成！正在跳轉...";
+                    // ★★★ 關鍵：跳轉到預覽頁面 (帶上 session_id) ★★★
+                    setTimeout(() => {
+                        window.location.href = `/preview?session_id=${sessionId}`;
+                    }, 1000);
+                }
+            }, 1000);
+
+        } catch (e) {
+            console.error(e);
+            statusText.textContent = "發生連線錯誤";
+        }
+    }
+
+    window.onload = startProcess;
+  </script>
+</body>
+</html>
